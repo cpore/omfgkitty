@@ -1,0 +1,33 @@
+format filesystem
+$HADOOP_HOME/bin/hdfs namenode -format
+
+start hdfs
+$HADOOP_HOME/sbin/start-dfs.sh
+
+stop hdfs
+$HADOOP_HOME/sbin/stop-dfs.sh
+
+namenode web portal
+http://boise.cs.colostate.edu:50070/
+
+start yarn
+$HADOOP_HOME/sbin/start-yarn.sh
+
+stop yarn
+$HADOOP_HOME/sbin/stop-yarn.sh
+
+yarn web portal
+http://boise.cs.colostate.edu:8088/cluster
+
+run job
+$HADOOP_HOME/bin/hadoop jar yourjar.jar yourClass inputDir outputDir (outputDir is created)
+
+add new node
+add to slaves first
+$HADOOP_HOME/sbin/hadoop-daemon.sh start datanode
+$HADOOP_HOME/sbin/hadoop-daemon.sh start tasktracker
+
+portal pages
+http://localhost:30156/ Spark Master
+http://localhost:30143/ DFS Overview
+http://localhost:30156/ Yarn
