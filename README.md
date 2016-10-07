@@ -28,6 +28,8 @@ It detects cats in images.
 
 [Spark Internals](https://cwiki.apache.org/confluence/display/SPARK/Spark+Internals?src=breadcrumbs-parent)
 
+[Store images/videos into Hadoop HDFS](http://stackoverflow.com/questions/16546040/store-images-videos-into-hadoop-hdfs)
+
 #Environment Setup
 
 ###Install Anaconda Python 3
