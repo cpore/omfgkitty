@@ -28,6 +28,6 @@ $HADOOP_HOME/sbin/hadoop-daemon.sh start datanode
 $HADOOP_HOME/sbin/hadoop-daemon.sh start tasktracker
 
 portal pages
-http://localhost:30156/ Spark Master
-http://localhost:30143/ DFS Overview
-http://localhost:30156/ Yarn
+http://localhost:30157/ Spark Master
+http://localhost:30155/ DFS Overview
+http://localhost:30154/ Yarn
