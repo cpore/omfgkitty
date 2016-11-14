@@ -30,6 +30,8 @@ It detects cats in images.
 
 [Store images/videos into Hadoop HDFS](http://stackoverflow.com/questions/16546040/store-images-videos-into-hadoop-hdfs)
 
+[Pascal 2007 Data set](http://host.robots.ox.ac.uk:8080/pascal/VOC/voc2007/)
+
 #Environment Setup
 
 ###Install Anaconda Python 3
@@ -46,6 +48,10 @@ It detects cats in images.
 
 Add `export PYSPARK_PYTHON=python3` to use Python 3
 
-###Make sure to add cv2 to "Forced builtins" for Python code completion in Eclipse:
+###Make sure to add cv2 to "Forced builtins" for Python code completion in Eclipse
 
 [http://stackoverflow.com/questions/9085643/how-to-use-code-completion-into-eclipse-with-opencv](http://stackoverflow.com/questions/9085643/how-to-use-code-completion-into-eclipse-with-opencv)
+
+### Use PySpark libraries in Eclipse
+
+[Starting up PySpark for using python with Spark in eclipse [closed]](http://stackoverflow.com/questions/22785010/starting-up-pyspark-for-using-python-with-spark-in-eclipse)

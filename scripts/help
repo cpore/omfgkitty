@@ -7,18 +7,6 @@ $HADOOP_HOME/sbin/start-dfs.sh
 stop hdfs
 $HADOOP_HOME/sbin/stop-dfs.sh
 
-namenode web portal
-http://boise.cs.colostate.edu:50070/
-
-start yarn
-$HADOOP_HOME/sbin/start-yarn.sh
-
-stop yarn
-$HADOOP_HOME/sbin/stop-yarn.sh
-
-yarn web portal
-http://boise.cs.colostate.edu:8088/cluster
-
 run job
 $HADOOP_HOME/bin/hadoop jar yourjar.jar yourClass inputDir outputDir (outputDir is created)
 
@@ -29,5 +17,5 @@ $HADOOP_HOME/sbin/hadoop-daemon.sh start tasktracker
 
 portal pages
 http://localhost:30157/ Spark Master
-http://localhost:30155/ DFS Overview
-http://localhost:30154/ Yarn
+http://localhost:30156/ DFS Overview
+http://localhost:30155/ Yarn
