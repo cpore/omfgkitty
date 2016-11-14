@@ -7,19 +7,19 @@ import cv2
 
 def print_hostname(LOGGER):
     for i in range(30):
-        print("-----------------------------------test info---------------------------------")
-        print('iteration:' + str(i))
-        print('host:' + socket.gethostname())
-        print('interpreter version:' + sys.version)
-        print('openCV version:' + cv2.__version__)
+        LOGGER.info("-----------------------------------test info---------------------------------")
+        LOGGER.info('iteration:' + str(i))
+        LOGGER.info('host:' + socket.gethostname())
+        LOGGER.info('interpreter version:' + sys.version)
+        LOGGER.info('openCV version:' + cv2.__version__)
         sleep(10)
         
 if __name__ == '__main__':
     sc = pyspark.SparkContext()
-    sc.setLogLevel('DEBUG')
+    #sc.setLogLevel('WARN')
     
     log4jLogger = sc._jvm.org.apache.log4j
-    LOGGER = log4jLogger.LogManager.getLogger('py4j')
+    LOGGER = log4jLogger.LogManager.getLogger(__name__)
     LOGGER.info("pyspark script logger initialized")
     print_hostname(LOGGER)
     

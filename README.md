@@ -42,6 +42,7 @@ It detects cats in images.
 
 `$ conda install -c menpo opencv3=3.1.0`
 
+There is a missing dependency:
 `$ conda install -c asmeurer pango`
 
 ### Setup spark-env.sh
@@ -55,3 +56,7 @@ Add `export PYSPARK_PYTHON=python3` to use Python 3
 ### Use PySpark libraries in Eclipse
 
 [Starting up PySpark for using python with Spark in eclipse [closed]](http://stackoverflow.com/questions/22785010/starting-up-pyspark-for-using-python-with-spark-in-eclipse)
+
+### Logging
+This will allow you to write to the node manager logs, but it's still not clear if this only outputs on the master node.
+[How do I log from my Python Spark script](http://stackoverflow.com/questions/25407550/how-do-i-log-from-my-python-spark-script)
