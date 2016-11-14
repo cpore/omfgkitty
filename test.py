@@ -16,10 +16,10 @@ def print_hostname(LOGGER):
         
 if __name__ == '__main__':
     sc = pyspark.SparkContext()
-    #sc.setLogLevel('WARN')
+    sc.setLogLevel('DEBUG')
     
     log4jLogger = sc._jvm.org.apache.log4j
-    LOGGER = log4jLogger.LogManager.getLogger(__name__)
+    LOGGER = log4jLogger.LogManager.getLogger('py4j')
     LOGGER.info("pyspark script logger initialized")
     print_hostname(LOGGER)
     
