@@ -7,11 +7,11 @@ import cv2
 
 def print_hostname(LOGGER):
     for i in range(30):
-        LOGGER.info("-----------------------------------test info---------------------------------")
-        LOGGER.info('iteration:' + str(i))
-        LOGGER.info('host:' + socket.gethostname())
-        LOGGER.info('interpreter version:' + sys.version)
-        LOGGER.info('openCV version:' + cv2.__version__)
+        print("-----------------------------------test info---------------------------------")
+        print('iteration:' + str(i))
+        print('host:' + socket.gethostname())
+        print('interpreter version:' + sys.version)
+        print('openCV version:' + cv2.__version__)
         sleep(10)
         
 if __name__ == '__main__':
