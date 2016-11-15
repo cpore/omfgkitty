@@ -10,10 +10,10 @@ if __name__ == '__main__':
     sc = SparkContext(conf=conf)
     imgs = sc.binaryFiles("hdfs://columbus-oh.cs.colostate.edu:30148/CAT_DATASET")
     
-    fs = hdfs.hdfs('columbus-oh.cs.colostate.edu', 30148)
+    #fs = hdfs.hdfs('columbus-oh.cs.colostate.edu', 30148)
     
-    if fs.exists('/output/imgrdd'):
-        fs.delete('/output/imgrdd', True)
+    #if fs.exists('/output/imgrdd'):
+    #    fs.delete('/output/imgrdd', True)
         
     imgs.keys().saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/output/imgrdd")
 
@@ -22,6 +22,6 @@ if __name__ == '__main__':
 
 
 
-#$SPARK_HOME/bin/spark-submit --py-files test.py --deploy-mode cluster --master yarn --supervise 
+#$SPARK_HOME/bin/spark-submit --deploy-mode cluster --master yarn --supervise utils/imgtoseq.py
     
     

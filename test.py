@@ -24,4 +24,4 @@ if __name__ == '__main__':
     print_hostname(LOGGER)
     
     
-#$SPARK_HOME/bin/spark-submit --py-files test.py --deploy-mode cluster --master yarn --supervise 
+#$SPARK_HOME/bin/spark-submit --deploy-mode cluster --master yarn --supervise test.py

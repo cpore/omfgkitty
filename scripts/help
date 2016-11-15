@@ -17,5 +17,23 @@ $HADOOP_HOME/sbin/hadoop-daemon.sh start tasktracker
 
 portal pages
 http://localhost:30157/ Spark Master
-http://localhost:30155/ DFS Overview
-http://localhost:30154/ Yarn
+http://localhost:30156/ DFS Overview
+http://localhost:30155/ Yarn
+
+30148 - namenode
+30156 - namenode http
+30157 - secondary namenode http
+30158 - datanode
+30159 - datanode http
+30160 - datanode ipc
+30142 - mapred shuffle port
+30149 - yarn resource tracker
+30150 - yarn scheduler
+30151 - yarn resource manager
+30152 - yarn node manager
+30153 - yarn node manager localizer
+30154 - yarn http
+30155 - yarn resource manager http
+30141 - spark master port
+30143 - spark http
+
