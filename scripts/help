@@ -7,14 +7,6 @@ $HADOOP_HOME/sbin/start-dfs.sh
 stop hdfs
 $HADOOP_HOME/sbin/stop-dfs.sh
 
-run job
-$HADOOP_HOME/bin/hadoop jar yourjar.jar yourClass inputDir outputDir (outputDir is created)
-
-add new node
-add to slaves first
-$HADOOP_HOME/sbin/hadoop-daemon.sh start datanode
-$HADOOP_HOME/sbin/hadoop-daemon.sh start tasktracker
-
 portal pages
 http://localhost:30157/ Spark Master
 http://localhost:30156/ DFS Overview
@@ -36,4 +28,6 @@ http://localhost:30155/ Yarn
 30155 - yarn resource manager http
 30141 - spark master port
 30143 - spark http
+
+RDD binary file filename key example: hdfs://columbus-oh.cs.colostate.edu:30148/CAT_DATASET/00000001_029.jpg
 
