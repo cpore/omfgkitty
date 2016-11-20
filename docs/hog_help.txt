@@ -1,0 +1,82 @@
+Help on HOGDescriptor object:
+
+class HOGDescriptor(builtins.object)
+ |  Methods defined here:
+ |  
+ |  __new__(*args, **kwargs) from builtins.type
+ |      Create and return a new object.  See help(type) for accurate signature.
+ |  
+ |  __repr__(self, /)
+ |      Return repr(self).
+ |  
+ |  checkDetectorSize(...)
+ |      checkDetectorSize() -> retval
+ |  
+ |  compute(...)
+ |      compute(img[, winStride[, padding[, locations]]]) -> descriptors
+ |  
+ |  computeGradient(...)
+ |      computeGradient(img[, grad[, angleOfs[, paddingTL[, paddingBR]]]]) -> grad, angleOfs
+ |  
+ |  detect(...)
+ |      detect(img[, hitThreshold[, winStride[, padding[, searchLocations]]]]) -> foundLocations, weights
+ |  
+ |  detectMultiScale(...)
+ |      detectMultiScale(img[, hitThreshold[, winStride[, padding[, scale[, finalThreshold[, useMeanshiftGrouping]]]]]]) -> foundLocations, foundWeights
+ |  
+ |  getDescriptorSize(...)
+ |      getDescriptorSize() -> retval
+ |  
+ |  getWinSigma(...)
+ |      getWinSigma() -> retval
+ |  
+ |  load(...)
+ |      load(filename[, objname]) -> retval
+ |  
+ |  save(...)
+ |      save(filename[, objname]) -> None
+ |  
+ |  setSVMDetector(...)
+ |      setSVMDetector(_svmdetector) -> None
+ |  
+ |  ----------------------------------------------------------------------
+ |  Data descriptors defined here:
+ |  
+ |  L2HysThreshold
+ |      L2HysThreshold
+ |  
+ |  blockSize
+ |      blockSize
+ |  
+ |  blockStride
+ |      blockStride
+ |  
+ |  cellSize
+ |      cellSize
+ |  
+ |  derivAperture
+ |      derivAperture
+ |  
+ |  gammaCorrection
+ |      gammaCorrection
+ |  
+ |  histogramNormType
+ |      histogramNormType
+ |  
+ |  nbins
+ |      nbins
+ |  
+ |  nlevels
+ |      nlevels
+ |  
+ |  signedGradient
+ |      signedGradient
+ |  
+ |  svmDetector
+ |      svmDetector
+ |  
+ |  winSigma
+ |      winSigma
+ |  
+ |  winSize
+ |      winSize
