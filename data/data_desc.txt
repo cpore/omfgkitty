@@ -1,2 +1,4 @@
 9993 examples hog_pos.data 319,326,315b 319.3MB
 9286 examples hog_neg.data 296,734,130b 296.7MB
+
+18000 examples hog_data 575,190,000b 575.2MB
