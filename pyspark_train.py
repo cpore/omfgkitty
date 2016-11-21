@@ -13,7 +13,7 @@ def train():
     parsedData = data.map(parsePoint)
     
     # Build the model
-    model = SVMWithSGD.train(parsedData, iterations=100)
+    model = SVMWithSGD.train(parsedData, iterations=100, regType=None)
     
     # Evaluating the model on training data
     labelsAndPreds = parsedData.map(lambda p: (p.label, model.predict(p.features)))
@@ -21,7 +21,7 @@ def train():
     print("Training Error = " + str(trainErr))
     
     # Save and load model
-    model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/cat_svm.model")
+    model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     
     
@@ -35,6 +35,5 @@ if __name__ == '__main__':
 
     train()
     sc.stop()
-    sc.close()
     
 #$SPARK_HOME/bin/spark-submit --deploy-mode cluster --master yarn --supervise pyspark_train.py
