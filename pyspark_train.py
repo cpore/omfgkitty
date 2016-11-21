@@ -22,7 +22,8 @@ def train():
     
     # Save and load model
     model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
-    model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
+    #this doesn't work
+    #model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     print("weights: ", model.weights())
     print("intercept: ", model.intercept())
