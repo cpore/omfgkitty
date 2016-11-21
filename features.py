@@ -1,20 +1,17 @@
-import cv2
+import os, time, glob, cv2
 import matplotlib.pyplot as plt
-
 from skimage.feature import hog
 from skimage import data, color, exposure, io
 import numpy as np
 from math import atan2, sin, cos, degrees
-import math
 from sklearn import preprocessing
 
-def cv_hog():
-    imgFile = 'CAT_DATASET/00000156_002.jpg'
-    catFile = imgFile +'.cat'
+
+def cv_hog(image, catFile, imgFunc):
     
     #Detection window size. Must be aligned to block size and block stride.
     #Must match the size of the training image. Use (64, 128) for default.
-    winSize = (32,32)
+    winSize = (48, 48)
     #Block size in pixels. Align to cell size. Use (16, 16) for default.
     blockSize = (8,8)
     #Block stride. Must be a multiple of cell size. Use (8,8) for default.
@@ -39,20 +36,18 @@ def cv_hog():
     hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
     
-    im = get_kitty_face_texture(cv2.cvtColor(cv2.imread(imgFile), cv2.COLOR_BGR2GRAY), catFile)#cv2.cvtColor(cv2.imread('CAT_DATASET/00000001_000.jpg'), cv2.COLOR_BGR2GRAY)
+    im = imgFunc(image, catFile)#cv2.cvtColor(cv2.imread('CAT_DATASET/00000001_000.jpg'), cv2.COLOR_BGR2GRAY)
     
     #winStride = (8,8)
     #padding = (8,8)
     #locations = ((10,20),)
     h = hog.compute(im)
-
-    print(h.shape, h.ravel())
+    #print(h.shape, h.ravel())
     return h.ravel()
     
-def ski_hog():
-    imgFile = 'CAT_DATASET/00000156_002.jpg'
-    catFile = imgFile +'.cat'
-    image = get_kitty_face_texture(color.rgb2gray(io.imread(imgFile)), catFile)#color.rgb2gray(io.imread('CAT_DATASET/00000001_000.jpg'))
+def ski_hog(image, catFile, imgFunc):
+    #color.rgb2gray(io.imread(imgFile))
+    image = imgFunc(image, catFile)#color.rgb2gray(io.imread('CAT_DATASET/00000001_000.jpg'))
     
     orientations=6
     pixels_per_cell=(4,4)
@@ -61,7 +56,7 @@ def ski_hog():
     
     fd, hog_image = hog(image, orientations, pixels_per_cell, cells_per_block, visualise)
     
-    print(fd.shape, fd)
+    #print(fd.shape, fd)
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
     
@@ -81,10 +76,9 @@ def ski_hog():
     ax1.set_adjustable('box-forced')
     plt.show()
 
-def draw_pts(imgFile, catFile):
+def draw_pts(image, catFile):
     pts = np.loadtxt(catFile, dtype='int_', delimiter=' ', usecols=range(1,19))
-    image = cv2.cvtColor(cv2.imread(imgFile), cv2.COLOR_BGR2GRAY)
-    #image = color.rgb2gray(io.imread(imgFile))
+    
     nose = (pts[4], pts[5])
     eye_right = (pts[2], pts[3])
     eye_left = (pts[0], pts[1])
@@ -177,18 +171,18 @@ def get_kitty_face_texture(image, catFile):
     
     #update scaled point for eyes
     
-    new_w = (20*w)/eye_w
+    new_w = (30*w)/eye_w
     
     scale = new_w/w
     
-    scaled = cv2.resize(rotated,None,fx=scale, fy=scale, interpolation = cv2.INTER_CUBIC)
+    scaled = cv2.resize(rotated,None,fx=scale, fy=scale, interpolation = cv2.INTER_AREA)
     
     eye_left = scale_pt(eye_left[0], eye_left[1], scale)
     eye_right = scale_pt(eye_right[0], eye_right[1], scale)
     nose = scale_pt(nose[0], nose[1], scale)
     
     #add border to ensure faces on edges of photos don't cause error due to roi being out of image boundaries
-    border = 32
+    border = 48
     scaled = cv2.copyMakeBorder(scaled,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
     eye_left = (eye_left[0]+border, eye_left[1]+border)
     eye_right = (eye_right[0]+border, eye_right[1]+border)
@@ -198,12 +192,12 @@ def get_kitty_face_texture(image, catFile):
     cv2.circle(scaled, eye_right, 5, (0,255,0), 2)
     cv2.circle(scaled, nose, 5, (0,255,0), 2)
     '''
-    eyes_center = ((int(round(eye_right[0] + eye_left[0])/2)), eye_left[1]+6)
+    eyes_center = ((int(round(eye_right[0] + eye_left[0])/2)), eye_left[1]+9)
     
     delta = int(border/2)
     roi = scaled[eyes_center[1]-delta: eyes_center[1]+delta, eyes_center[0]-delta: eyes_center[0]+delta]
     
-    print(roi.shape)
+    #print(roi.shape)
     #cv2.imshow("ROI", roi)
     #cv2.waitKey(0)
     return roi
@@ -264,11 +258,11 @@ def get_kitty_face_shape(image, catFile):
     
     #update scaled point for eyes
     
-    new_w = (36*w)/ear_w
+    new_w = (38*w)/ear_w
     
     scale = new_w/w
     
-    scaled = cv2.resize(rotated,None,fx=scale, fy=scale, interpolation = cv2.INTER_CUBIC)
+    scaled = cv2.resize(rotated,None,fx=scale, fy=scale, interpolation = cv2.INTER_AREA)
     
     
     ear_left_tip = scale_pt(ear_left_tip[0], ear_left_tip[1], scale)
@@ -289,19 +283,15 @@ def get_kitty_face_shape(image, catFile):
     cv2.circle(scaled, ear_right_tip, 5, (0,255,0), 2)
     cv2.circle(scaled, nose, 5, (0,255,0), 2)
     '''
-    ears_center = ((int(round(ear_right_tip[0] + ear_left_tip[0])/2)), ear_left_tip[1]+20)
+    ears_center = ((int(round(ear_right_tip[0] + ear_left_tip[0])/2)), ear_left_tip[1]+22)
     
     delta = int(border/2)
     roi = scaled[ears_center[1]-delta: ears_center[1]+delta, ears_center[0]-delta: ears_center[0]+delta]
     
-    print(roi.shape)
+    #print(roi.shape)
     #cv2.imshow("ROI", roi)
     #cv2.waitKey(0)
     return roi
-
-def translate_img(image, tx, ty):
-    pass
-    
     
 def rotate_pt(x, y, x_t, y_t, angle):
     #translate to center
@@ -321,18 +311,84 @@ def rotate_pt(x, y, x_t, y_t, angle):
 def scale_pt(x, y, scale):
     return (int(round(x*scale)), int(round(y*scale)))
 
+def show_faces():
+    for filename in glob.glob('CAT_DATASET/*.jpg'):
+        catFile = filename +'.cat'
+        print(filename)
+        get_kitty_face_shape(cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY), catFile)
+        
+def get_kitty_negative(image, catFile):
+    (h, w) = image.shape[:2]
+    img_center = (int(round(w / 2)), int(round(h / 2)))
+    
+    #add border to ensure faces on edges of photos don't cause error due to roi being out of image boundaries
+    border = 48
+    newimg = cv2.copyMakeBorder(image,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
+    
+    delta = int(border/2)
+    roi = newimg[img_center[1]-delta: img_center[1]+delta, img_center[0]-delta: img_center[0]+delta]
+    
+    #print(roi.shape)
+    #cv2.imshow("ROI", roi)
+    #cv2.waitKey(0)
+    return roi
+        
+def make_features():
+    f = open('data/hog_pos.data','w')
+    numFiles = len([name for name in os.listdir('CAT_DATASET/')])/2
+    done = 0
+    for filename in glob.glob('CAT_DATASET/*.jpg'):
+        image = cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY)
+        catFile = filename +'.cat'
+        desc = cv_hog(image, catFile, get_kitty_face_shape)
+        desc = np.append(np.array([1]), desc)
+        descString = ','.join(['%.8f' % num for num in desc])
+        print(descString, file=f)
+        if get_time() % 100 == 0:
+            print('processed...' + str(done) + ' of ' + str(numFiles))
+        done += 1
+        
+def make_negative_features():
+    f = open('data/hog_neg.data','w')
+    numFiles = len([name for name in os.listdir('VOC_NEGATIVES/')])
+    done = 0
+    for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
+        image = cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY)
+        desc = cv_hog(image, None, get_kitty_negative)
+        desc = np.append(np.array([0]), desc)
+        descString = ','.join(['%.8f' % num for num in desc])
+        print(descString, file=f)
+        if get_time() % 100 == 0:
+            print('processed...' + str(done) + ' of ' + str(numFiles))
+        done += 1
+        
+def get_time():
+    return int(round(time.time() * 1000))
 
-cv_hog()
+#cv_hog()
 #ski_hog()
+# 
+# imgFile3 = 'CAT_DATASET/00000298_014.jpg'
+# catFile3 = imgFile3 +'.cat'
 
-imgFile3 = 'CAT_DATASET/00000298_014.jpg'
-catFile3 = imgFile3 +'.cat'
-imgFile2 = 'CAT_DATASET/00000156_002.jpg'
-catFile2 = imgFile2 +'.cat'
-imgFile = 'CAT_DATASET/00000032_002.jpg'
-catFile = imgFile +'.cat'
-image = color.rgb2gray(io.imread(imgFile3))
+# imgFile2 = 'CAT_DATASET/00000156_002.jpg'
+# catFile2 = imgFile2 +'.cat'
+#imgFile = 'CAT_DATASET/00000032_002.jpg'
+#catFile = imgFile +'.cat'
+# image = color.rgb2gray(io.imread(imgFile3))
+#cv_hog(cv2.cvtColor(cv2.imread(imgFile), cv2.COLOR_BGR2GRAY), catFile, get_kitty_face_shape)
+
+#make_negative_features()
+make_features()
 
 #get_kitty_face_texture(image, catFile3)
 #get_kitty_face_shape(image, catFile3)
+#make_features()
+
+# if __name__ == '__main__':
+#     sc = pyspark.SparkContext()
+#     #sc.setLogLevel('WARN')
+#       
+#     log4jLogger = sc._jvm.org.apache.log4j
+#     LOGGER = log4jLogger.LogManager.getLogger(__name__)
 
