@@ -33,7 +33,7 @@ def train():
     #array = model.weights().values()
     
     print("intercept: ", model.intercept)
-    print("weights: ", model.weights.values)
+    print("weights: ", model.weights.values.shape, model.weights.values)
     
     
 if __name__ == '__main__':
