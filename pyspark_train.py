@@ -32,7 +32,7 @@ def train():
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     #array = model.weights().values()
     
-    print("intercept: ", model.intercept())
+    print("intercept: ", model.intercept)
     
     
 if __name__ == '__main__':
