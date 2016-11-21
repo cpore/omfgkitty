@@ -18,10 +18,11 @@ def train():
     # Evaluating the model on training data
     labelsAndPreds = parsedData.map(lambda p: (p.label, model.predict(p.features)))
     trainErr = labelsAndPreds.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
-    print("Training Error = " + str(trainErr))
+    print("-----------------------------------------Training Error = " + str(trainErr) + "----------------------------------------------")
     
     # Save and load model
     model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model")
+    model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     
     
