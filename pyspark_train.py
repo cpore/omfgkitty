@@ -8,6 +8,9 @@ def parsePoint(line):
     values = [float(x) for x in line.split(',')]
     return LabeledPoint(values[0], values[1:])
 
+def toCSVLine(data):
+  return ','.join(str(d) for d in data)
+
 def train():
     data = sc.textFile("hdfs://columbus-oh.cs.colostate.edu:30148/data/hog.data")
     parsedData = data.map(parsePoint)
@@ -27,7 +30,10 @@ def train():
     #this doesn't work
     #model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
-    print("weights: ", model.weights().toArray())
+    weightsRDD = sc.parallelize(model.weights().toArray())
+    
+    lines = weightsRDD.map(toCSVLine)
+    lines.saveAsTextFile('hdfs://columbus-oh.cs.colostate.edu:30148/weights/weights.csv')
     print("intercept: ", model.intercept())
     
     
