@@ -12,6 +12,8 @@ def train():
     data = sc.textFile("hdfs://columbus-oh.cs.colostate.edu:30148/data/hog.data")
     parsedData = data.map(parsePoint)
     
+    trainingRDD, validationRDD, testRDD = parsedData.randomSplit([6, 2, 2], seed=0)
+    
     # Build the model
     model = SVMWithSGD.train(parsedData, iterations=100, regType=None)
     
@@ -25,7 +27,7 @@ def train():
     #this doesn't work
     #model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
-    print("weights: ", model.weights())
+    print("weights: ", model.weights().toArray())
     print("intercept: ", model.intercept())
     
     
