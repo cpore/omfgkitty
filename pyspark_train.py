@@ -26,14 +26,14 @@ def train():
     print("-----------------------------------------Training Error = " + str(trainErr) + "----------------------------------------------")
     
     # Save and load model
-    model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
+    #model.save(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     #this doesn't work
     #model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
     #array = model.weights().values()
     
     print("intercept: ", model.intercept)
-    print("weights: ", model.weights)
+    print("weights: ", model.weights.values)
     
     
 if __name__ == '__main__':
