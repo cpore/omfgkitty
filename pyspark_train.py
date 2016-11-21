@@ -30,10 +30,8 @@ def train():
     #this doesn't work
     #model.toPMML(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/pmml/model.xml")
     #sameModel = SVMModel.load(sc, "hdfs://columbus-oh.cs.colostate.edu:30148/model/model")
-    weightsRDD = sc.parallelize(model.weights().toArray())
+    #array = model.weights().values()
     
-    lines = weightsRDD.map(toCSVLine)
-    lines.saveAsTextFile('hdfs://columbus-oh.cs.colostate.edu:30148/weights/weights.csv')
     print("intercept: ", model.intercept())
     
     
