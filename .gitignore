@@ -2,6 +2,4 @@ CAT_DATASET
 VOC
 VOC_NEGATIVES
 VOC_POSITIVES
-/data/hog_neg.data
-/data/hog_pos.data
-/data/hog.data
+/data

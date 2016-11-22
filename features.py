@@ -7,7 +7,9 @@ from math import atan2, sin, cos, degrees
 from sklearn import preprocessing
 
 def detect_cats(image, modelFile):
-    model = np.loadtxt(modelFile, delimiter=' ')
+    model = np.loadtxt(modelFile, delimiter=',')
+    #cv2.imshow('image',image)
+    #cv2.waitKey(0)
     #Detection window size. Must be aligned to block size and block stride.
     #Must match the size of the training image. Use (64, 128) for default.
     winSize = (48, 48)
@@ -35,7 +37,7 @@ def detect_cats(image, modelFile):
     hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
     
-    hog.setSVMDector(model)
+    hog.setSVMDetector(model)
     
     #Threshold for the distance between features and SVM classifying plane.
     #See gpu::HOGDescriptor::detect() for details.
@@ -44,18 +46,98 @@ def detect_cats(image, modelFile):
     #But if the free coefficient is omitted (which is allowed), you can specify it manually here.
     #hitThreshold = 1.5
     #Window stride. It must be a multiple of block stride.
-    #winStride = (8,8)
+    winStride = (4,4)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
-    #padding = (8,8)
+    padding = (8,8)
     #Coefficient of the detection window increase.
-    #scale0 = 1.5 
-    #Coefficient to regulate the similarity threshold.
-    #When detected, some objects can be covered by many rectangles.
-    #0 means not to perform grouping. See groupRectangles() .
-    #groupThreshold = 0
-    found, w = hog.detectMultiScale(image)
+    scale = .9 
+    #don't know?
+    #finalThreshold = 0
+    #
+    #useMeanshiftGrouping
+    image = cv2.resize(image,None,fx=.3, fy=.3, interpolation = cv2.INTER_AREA)
+    found, w = hog.detectMultiScale(image, winStride=winStride, padding=padding, scale=scale)
     #print(h.shape, h.ravel())
-    return h.ravel()
+    
+    print('found: ', found, 'w', w)
+    draw_found_max(image, found, w)
+
+def draw_found_max(image, found, weights):
+    if len(weights) == 0:
+        return
+    pad = 0
+    i = np.argmax(weights)
+    pts = found[i]
+    cv2.rectangle(image, (pts[0]-pad, pts[1]-pad), (pts[0]+pts[2]+pad, pts[1]+pts[3]+pad), (255,0,0), 2)
+    cv2.imshow('rect_image',image)
+    cv2.waitKey(0)
+
+def draw_found(image, found, weights):
+    for i in range(weights.shape[0]):
+        row = weights[i][0]
+        if row > 1.7:
+            pts = found[i]
+            cv2.rectangle(image, (pts[0], pts[1]), (pts[0]+pts[2], pts[1]+pts[3]), (255,0,0), 2)
+    cv2.imshow('rect_image',image)
+    cv2.waitKey(0)
+            
+
+# Malisiewicz et al.
+def non_max_suppression_fast(boxes, overlapThresh):
+    # if there are no boxes, return an empty list
+    if len(boxes) == 0:
+        return []
+ 
+    # if the bounding boxes integers, convert them to floats --
+    # this is important since we'll be doing a bunch of divisions
+    if boxes.dtype.kind == "i":
+        boxes = boxes.astype("float")
+ 
+    # initialize the list of picked indexes    
+    pick = []
+ 
+    # grab the coordinates of the bounding boxes
+    x1 = boxes[:,0]
+    y1 = boxes[:,1]
+    x2 = boxes[:,2]
+    y2 = boxes[:,3]
+ 
+    # compute the area of the bounding boxes and sort the bounding
+    # boxes by the bottom-right y-coordinate of the bounding box
+    area = (x2 - x1 + 1) * (y2 - y1 + 1)
+    idxs = np.argsort(y2)
+ 
+    # keep looping while some indexes still remain in the indexes
+    # list
+    while len(idxs) > 0:
+        # grab the last index in the indexes list and add the
+        # index value to the list of picked indexes
+        last = len(idxs) - 1
+        i = idxs[last]
+        pick.append(i)
+ 
+        # find the largest (x, y) coordinates for the start of
+        # the bounding box and the smallest (x, y) coordinates
+        # for the end of the bounding box
+        xx1 = np.maximum(x1[i], x1[idxs[:last]])
+        yy1 = np.maximum(y1[i], y1[idxs[:last]])
+        xx2 = np.minimum(x2[i], x2[idxs[:last]])
+        yy2 = np.minimum(y2[i], y2[idxs[:last]])
+ 
+        # compute the width and height of the bounding box
+        w = np.maximum(0, xx2 - xx1 + 1)
+        h = np.maximum(0, yy2 - yy1 + 1)
+ 
+        # compute the ratio of overlap
+        overlap = (w * h) / area[idxs[:last]]
+ 
+        # delete all indexes from the index list that have
+        idxs = np.delete(idxs, np.concatenate(([last],
+            np.where(overlap > overlapThresh)[0])))
+ 
+    # return only the bounding boxes that were picked using the
+    # integer data type
+    return boxes[pick].astype("int")
 
 def cv_hog(image, catFile, imgFunc):
     
@@ -365,7 +447,7 @@ def show_faces():
     for filename in glob.glob('CAT_DATASET/*.jpg'):
         catFile = filename +'.cat'
         print(filename)
-        get_kitty_face_shape(cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY), catFile)
+        get_kitty_face_texture(cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY), catFile)
         
 def get_kitty_negative(image, catFile):
     (h, w) = image.shape[:2]
@@ -384,13 +466,13 @@ def get_kitty_negative(image, catFile):
     return roi
         
 def make_features():
-    f = open('data/hog_pos.data','w')
+    f = open('data/hog_pos_tex.data','w')
     numFiles = len([name for name in os.listdir('CAT_DATASET/')])/2
     done = 0
     for filename in glob.glob('CAT_DATASET/*.jpg'):
         image = cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY)
         catFile = filename +'.cat'
-        desc = cv_hog(image, catFile, get_kitty_face_shape)
+        desc = cv_hog(image, catFile, get_kitty_face_texture)
         desc = np.append(np.array([1]), desc)
         descString = ','.join(['%.8f' % num for num in desc])
         print(descString, file=f)
@@ -399,7 +481,7 @@ def make_features():
         done += 1
         
 def make_negative_features():
-    f = open('data/hog_neg.data','w')
+    f = open('data/hog_neg_tex.data','w')
     numFiles = len([name for name in os.listdir('VOC_NEGATIVES/')])
     done = 0
     for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
@@ -415,12 +497,16 @@ def make_negative_features():
 def get_time():
     return int(round(time.time() * 1000))
 
+def show_detected():
+    for filename in glob.glob('CAT_DATASET/*.jpg'):
+        detect_cats(cv2.imread(filename), 'models/svm.model')
+
 #cv_hog()
 #ski_hog()
 # 
 # imgFile3 = 'CAT_DATASET/00000298_014.jpg'
 # catFile3 = imgFile3 +'.cat'
-
+#detect_cats(cv2.imread('CAT_DATASET/00000009_016.jpg'), 'models/svm2.model')
 # imgFile2 = 'CAT_DATASET/00000156_002.jpg'
 # catFile2 = imgFile2 +'.cat'
 #imgFile = 'CAT_DATASET/00000032_002.jpg'
@@ -428,9 +514,8 @@ def get_time():
 # image = color.rgb2gray(io.imread(imgFile3))
 #cv_hog(cv2.cvtColor(cv2.imread(imgFile), cv2.COLOR_BGR2GRAY), catFile, get_kitty_face_shape)
 
-#make_negative_features()
-make_features()
-
+make_negative_features()
+#make_features()
 #get_kitty_face_texture(image, catFile3)
 #get_kitty_face_shape(image, catFile3)
 #make_features()
