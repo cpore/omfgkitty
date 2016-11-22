@@ -36,7 +36,7 @@ def train():
     print("intercept: ", model.intercept)
     print("weights: ", model.weights.values.shape, model.weights.values)
     w = np.append(model.weights.values, model.intercept)
-    weightsRDD = sc.parallelize(("w", ','.join(w)))
+    weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights.data")
     
     
