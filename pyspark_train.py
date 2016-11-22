@@ -9,6 +9,9 @@ def parsePoint(line):
     values = [float(x) for x in line.split(',')]
     return LabeledPoint(values[0], values[1:])
 
+def toCSVLine(data):
+  return ','.join(str(d) for d in data)
+
 def train():
     data = sc.textFile("hdfs://columbus-oh.cs.colostate.edu:30148/data/hog.data")
     parsedData = data.map(parsePoint)
@@ -33,7 +36,7 @@ def train():
     print("intercept: ", model.intercept)
     print("weights: ", model.weights.values.shape, model.weights.values)
     w = np.append(model.weights.values, model.intercept)
-    weightsRDD = sc.parallelize(w)
+    weightsRDD = sc.parallelize(("w", w))
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights.data")
     
     
