@@ -2,6 +2,7 @@ from pyspark.mllib.classification import SVMWithSGD, SVMModel
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
+import numpy as np
 
 # Load and parse the data
 def parsePoint(line):
@@ -34,7 +35,7 @@ def train():
     
     print("intercept: ", model.intercept)
     print("weights: ", model.weights.values.shape, model.weights.values)
-    w = numpy.append(model.weights.values, model.intercept)
+    w = np.append(model.weights.values, model.intercept)
     weightsRDD = sc.parallelize(w)
     weights.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights.data")
     
