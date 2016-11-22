@@ -3,6 +3,7 @@ from pyspark.mllib.regression import LabeledPoint
 from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 import numpy as np
+import time
 
 # Load and parse the data
 def parsePoint(line):
@@ -19,7 +20,7 @@ def train():
     trainingRDD, validationRDD, testRDD = parsedData.randomSplit([6, 2, 2], seed=0)
     
     # Build the model
-    model = SVMWithSGD.train(parsedData, iterations=100, regType=None)#, intercept=True)
+    model = SVMWithSGD.train(parsedData, iterations=100, regType=None, intercept=True)
     # Evaluating the model on training data
     labelsAndPreds = parsedData.map(lambda p: (p.label, model.predict(p.features)))
     trainErr = labelsAndPreds.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
@@ -38,8 +39,10 @@ def train():
     w = np.append(model.weights.values, model.intercept)
     ones = np.ones((1, w.shape[0]))
     w = np.vstack((w,ones))
-    weightsRDD = sc.parallelize(w)#("w", ','.join(['%.16f' % num for num in w])))
-    weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights.data")
+    weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
+    
+    timestamp = int(time.time())
+    weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights" + str(timestamp) + ".data")
     
     
 if __name__ == '__main__':
