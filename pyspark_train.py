@@ -19,8 +19,7 @@ def train():
     trainingRDD, validationRDD, testRDD = parsedData.randomSplit([6, 2, 2], seed=0)
     
     # Build the model
-    model = SVMWithSGD.train(parsedData, iterations=100, regType=None)
-    
+    model = SVMWithSGD.train(parsedData, iterations=100, regType=None)#, intercept=True)
     # Evaluating the model on training data
     labelsAndPreds = parsedData.map(lambda p: (p.label, model.predict(p.features)))
     trainErr = labelsAndPreds.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
@@ -35,8 +34,11 @@ def train():
     
     print("intercept: ", model.intercept)
     print("weights: ", model.weights.values.shape, model.weights.values)
+    
     w = np.append(model.weights.values, model.intercept)
-    weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
+    ones = np.ones((1, w.shape[0]))
+    w = np.vstack((w,ones))
+    weightsRDD = sc.parallelize(w)#("w", ','.join(['%.16f' % num for num in w])))
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights.data")
     
     
