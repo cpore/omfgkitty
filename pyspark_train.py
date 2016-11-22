@@ -25,7 +25,7 @@ def train():
     else:
         postfix = "_sha"
         
-    datafile += "hog" + postfix + ".data"
+    dataFile += "hog" + postfix + ".data"
         
     data = sc.textFile(dataFile)
     
