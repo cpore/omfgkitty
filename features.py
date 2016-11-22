@@ -6,6 +6,43 @@ import numpy as np
 from math import atan2, sin, cos, degrees
 from sklearn import preprocessing
 
+def detect_cats(image, modelFile):
+    model = np.loadtxt(modelFile, delimiter=' ')
+    #Detection window size. Must be aligned to block size and block stride.
+    #Must match the size of the training image. Use (64, 128) for default.
+    winSize = (48, 48)
+    #Block size in pixels. Align to cell size. Use (16, 16) for default.
+    blockSize = (8,8)
+    #Block stride. Must be a multiple of cell size. Use (8,8) for default.
+    blockStride = (4,4)
+    #Cell size. Use (8, 8) for default.
+    cellSize = (4,4)
+    #Number of bins.
+    nbins = 6
+    #
+    derivAperture = 1
+    #Gaussian smoothing window parameter.
+    winSigma = 4.
+    #
+    histogramNormType = 0
+    #L2-Hys normalization method shrinkage.
+    L2HysThreshold = 0.2
+    #Do gamma correction preprocessing or not. Use true for default.
+    gammaCorrection = 0
+    #Maximum number of detection window increases.
+    nlevels = 64
+    
+    hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
+                        histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
+    
+    hog.setSVMDector(model)
+    
+    #winStride = (8,8)
+    #padding = (8,8)
+    #locations = ((10,20),)
+    found, w = hog.detectMultiScale(image)
+    #print(h.shape, h.ravel())
+    return h.ravel()
 
 def cv_hog(image, catFile, imgFunc):
     
