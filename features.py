@@ -37,9 +37,22 @@ def detect_cats(image, modelFile):
     
     hog.setSVMDector(model)
     
+    #Threshold for the distance between features and SVM classifying plane.
+    #See gpu::HOGDescriptor::detect() for details.
+    #Threshold for the distance between features and SVM classifying plane.
+    #Usually it is 0 and should be specfied in the detector coefficients (as the last free coefficient).
+    #But if the free coefficient is omitted (which is allowed), you can specify it manually here.
+    #hitThreshold = 1.5
+    #Window stride. It must be a multiple of block stride.
     #winStride = (8,8)
+    #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
     #padding = (8,8)
-    #locations = ((10,20),)
+    #Coefficient of the detection window increase.
+    #scale0 = 1.5 
+    #Coefficient to regulate the similarity threshold.
+    #When detected, some objects can be covered by many rectangles.
+    #0 means not to perform grouping. See groupRectangles() .
+    #groupThreshold = 0
     found, w = hog.detectMultiScale(image)
     #print(h.shape, h.ravel())
     return h.ravel()

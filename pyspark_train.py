@@ -37,8 +37,6 @@ def train():
     print("weights: ", model.weights.values.shape, model.weights.values)
     
     w = np.append(model.weights.values, model.intercept)
-    ones = np.ones((1, w.shape[0]))
-    w = np.vstack((w,ones))
     weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
     
     timestamp = int(time.time())
