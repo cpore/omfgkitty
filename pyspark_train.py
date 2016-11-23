@@ -111,6 +111,7 @@ def make_params():
     #True never does better than random
     intercept_params = [False]
     validateData_params = [True]
+    #Smaller convergence seems to work better
     convergenceTol_params = [0.001, 0.0001]
     listOParams = [iterations_params,step_params,regParam_params,miniBatchFraction_params,initialWeights_params,regType_params,intercept_params,validateData_params,convergenceTol_params]
     
