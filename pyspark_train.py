@@ -42,7 +42,7 @@ def train():
             bestMeanError = 2.0
             bestParmSet = None
             for fold in range(10):
-                iterations =+ 1
+                iterations += 1
                 
                 print('Running iteration:', str(iterations), 'of 1600', 'Running fold', str(fold), '\nwith params:', parms)
                 trainingRDD, validationRDD = trainValidateRDD.randomSplit([0.8, 0.2], seed=20)               
