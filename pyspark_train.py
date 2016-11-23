@@ -1,13 +1,11 @@
 from pyspark.mllib.classification import SVMWithSGD
 from pyspark.mllib.evaluation import BinaryClassificationMetrics
 from pyspark.mllib.regression import LabeledPoint
-from pyspark.ml import Pipeline
-from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
 from pyspark.context import SparkContext
 from pyspark.conf import SparkConf
 import numpy as np
 import time
-from sklearn.datasets.tests.test_svmlight_format import datafile
+import itertools
 
 # Load and parse the data
 def parsePoint(line):
