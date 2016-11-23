@@ -50,7 +50,7 @@ def detect_cats(image, modelFile):
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
     padding = (8,8)
     #Coefficient of the detection window increase.
-    scale = .9 
+    scale = 1.01 
     #don't know?
     #finalThreshold = 0
     #
@@ -64,9 +64,15 @@ def detect_cats(image, modelFile):
 
 def draw_found_max(image, found, weights):
     if len(weights) == 0:
+        cv2.imshow('rect_image',image)
+        cv2.waitKey(0)
+        return
+    i = np.argmax(weights)
+    if weights[i][0] < 3.5:
+        cv2.imshow('rect_image',image)
+        cv2.waitKey(0)
         return
     pad = 0
-    i = np.argmax(weights)
     pts = found[i]
     cv2.rectangle(image, (pts[0]-pad, pts[1]-pad), (pts[0]+pts[2]+pad, pts[1]+pts[3]+pad), (255,0,0), 2)
     cv2.imshow('rect_image',image)
@@ -159,7 +165,7 @@ def cv_hog(image, catFile, imgFunc):
     #
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
-    L2HysThreshold = 0.2
+    L2HysThreshold = 0.3
     #Do gamma correction preprocessing or not. Use true for default.
     gammaCorrection = 0
     #Maximum number of detection window increases.
@@ -498,9 +504,10 @@ def get_time():
     return int(round(time.time() * 1000))
 
 def show_detected():
-    for filename in glob.glob('CAT_DATASET/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm.model')
+    for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
+        detect_cats(cv2.imread(filename), 'models/svm_sha_noval_nobias.model')
 
+show_detected()
 #cv_hog()
 #ski_hog()
 # 
@@ -514,7 +521,7 @@ def show_detected():
 # image = color.rgb2gray(io.imread(imgFile3))
 #cv_hog(cv2.cvtColor(cv2.imread(imgFile), cv2.COLOR_BGR2GRAY), catFile, get_kitty_face_shape)
 
-make_negative_features()
+#make_negative_features()
 #make_features()
 #get_kitty_face_texture(image, catFile3)
 #get_kitty_face_shape(image, catFile3)
