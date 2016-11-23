@@ -23,7 +23,7 @@ def train():
     dataFileTex = "hdfs://columbus-oh.cs.colostate.edu:30148/data/hog_tex.data"
     dataFiles = [dataFileSha, dataFileTex]
     iterations = 0
-    for i in len(dataFiles):
+    for i in range(len(dataFiles)):
         metrics = []
         finalParams = []
         tag = "_sha" if i==0 else "_tex"
@@ -86,7 +86,7 @@ def train():
         # Instantiate metrics object
         metrics.append(BinaryClassificationMetrics(predictionAndLabels))
     
-    for i in len(metrics):
+    for i in range(len(metrics)):
         tag = "_sha" if i==0 else "_tex"
         # Area under precision-recall curve
         print(tag, "Area under PR = %s" % metric.areaUnderPR)
