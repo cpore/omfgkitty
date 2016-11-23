@@ -34,12 +34,12 @@ def train():
         
         bestParamSet = None
         bestTrainError = 2.0
+        bestTestError = 2.0
         bestModel = None
         
         for parms in params:
             trainValidateRDD, testingRDD = parsedData.randomSplit([0.9, 0.1], seed=11)
             validationErrors = []
-            bestMeanError = 2.0
             bestParmSet = None
             for fold in range(10):
                 iterations += 1
@@ -58,20 +58,21 @@ def train():
             # Calculate the mean of these errors.
             meanError = np.mean(np.array(validationErrors))
             
-            # If this error is less than the previously best error for parmSet, update best parameter values and best error
-            if meanError < bestMeanError:
-                bestMeanError = meanError
+            # If this error is less than the previously best error (plus a 10% delta for wiggle room)
+            # for parmSet, update best parameter values and best error
+            if meanError < bestTrainError + 0.01:
+                bestTrainError = meanError
                 bestParmSet = parms
                     
                 #Train a new model with the best params and check it against the test hold-out set
                 model = SVMWithSGD.train(trainValidateRDD,bestParmSet[0], bestParmSet[1], bestParmSet[2],bestParmSet[3],bestParmSet[4],bestParmSet[5],bestParmSet[6],bestParmSet[7],bestParmSet[8])
                 predsAndLabels = testingRDD.map(lambda p: (model.predict(p.features), p.label))
                 trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(testingRDD.count())
-                #If its better than the best training error then these params make the best model
-                if trainError < bestTrainError:
+                #If its better than the best training error then these params make the best general model
+                if trainError < bestTestError:
                     print("New Best Training Error = " + str(trainError) + "----------------------------------------------")
                     print('New Best Params:', bestParmSet)
-                    bestTrainError = trainError
+                    bestTestError = trainError
                     bestModel = model
                     bestParamSet = bestParmSet
                     finalParams.append(bestParamSet)
@@ -79,14 +80,15 @@ def train():
                     w = np.append(bestModel.weights.values, bestModel.intercept)
                     weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
                     timestamp = int(time.time())
-                    weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + str(timestamp) + "_" + str(bestTrainError) + ".data")
-                    
-        w = np.append(bestModel.weights.values, bestModel.intercept)
+                    weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + "_" + str(timestamp) + "_" + str(bestTestError) + ".model")
+          
+        #Finally, train a new model with the best params on the entire data set
+        finalModel = SVMWithSGD.train(parsedData,bestParmSet[0], bestParmSet[1], bestParmSet[2],bestParmSet[3],bestParmSet[4],bestParmSet[5],bestParmSet[6],bestParmSet[7],bestParmSet[8])          
+        w = np.append(finalModel.weights.values, finalModel.intercept)
         weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
         
         timestamp = int(time.time())
-        weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + str(timestamp) + "_" + str(bestTrainError) + "_BEST" + ".data")
-        
+        weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + "_" + str(timestamp) + "_" + str(bestTestError) + "_FINAL" + ".model")
                     
         # Instantiate metrics object
         metrics.append(BinaryClassificationMetrics(predictionAndLabels))
@@ -97,7 +99,7 @@ def train():
         print(tag, "Area under PR = %s" % metric.areaUnderPR)
         # Area under ROC curve
         print(tag, "Area under ROC = %s" % metric.areaUnderROC)
-        print('best params:', finalParams[i])
+        print(tag, 'best params:', finalParams[i])
             
 def make_params():
     iterations_params = [100, 1000]
