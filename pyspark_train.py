@@ -21,9 +21,10 @@ def train():
     dataFileTex = "hdfs://columbus-oh.cs.colostate.edu:30148/data/hog_tex.data"
     dataFiles = [dataFileSha, dataFileTex]
     iterations = 0
+    metrics = []
+    finalParams = []
     for i in range(len(dataFiles)):
-        metrics = []
-        finalParams = []
+        
         tag = "_sha" if i==0 else "_tex"
         
         data = sc.textFile(dataFiles[i])
@@ -43,15 +44,14 @@ def train():
             for fold in range(10):
                 iterations =+ 1
                 
-                if iterations % 10 == 0:
-                    print('Running iteration:', str(iterations), 'of 1600', 'Running fold', str(fold), '\nwith params:', parms)
-                trainingRDD, validationRDD = trainValidateRDD.randomSplit([0.8, 0.2], seed=21)               
+                print('Running iteration:', str(iterations), 'of 1600', 'Running fold', str(fold), '\nwith params:', parms)
+                trainingRDD, validationRDD = trainValidateRDD.randomSplit([0.8, 0.2], seed=20)               
                 
                 # Build the model
                 model = SVMWithSGD.train(trainingRDD, parms[0], parms[1], parms[2],parms[3],parms[4],parms[5],parms[6],parms[7],parms[8])
                 # Evaluating the model on training data
-                predsAndLabels = parsedData.map(lambda p: (model.predict(p.features), p.label))
-                validationError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
+                predsAndLabels = validationRDD.map(lambda p: (model.predict(p.features), p.label))
+                validationError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(validationRDD.count())
                 
                 validationErrors.append(validationError)      
                 
@@ -65,11 +65,12 @@ def train():
                     
                 #Train a new model with the best params and check it against the test hold-out set
                 model = SVMWithSGD.train(trainValidateRDD,bestParmSet[0], bestParmSet[1], bestParmSet[2],bestParmSet[3],bestParmSet[4],bestParmSet[5],bestParmSet[6],bestParmSet[7],bestParmSet[8])
-                predsAndLabels = parsedData.map(lambda p: (model.predict(p.features), p.label))
-                trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
+                predsAndLabels = testingRDD.map(lambda p: (model.predict(p.features), p.label))
+                trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(testingRDD.count())
                 #If its better than the best training error then these params make the best model
                 if trainError < bestTrainError:
                     print("New Best Training Error = " + str(trainError) + "----------------------------------------------")
+                    print('New Best Params:', bestParmSet)
                     bestTrainError = trainError
                     bestModel = model
                     bestParamSet = bestParmSet
