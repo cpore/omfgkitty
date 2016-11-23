@@ -74,14 +74,20 @@ def train():
                     bestTrainError = trainError
                     bestModel = model
                     bestParamSet = bestParmSet
-        
-        finalParams.append(bestParamSet)
+                    finalParams.append(bestParamSet)
+                    
+                    w = np.append(bestModel.weights.values, bestModel.intercept)
+                    weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
+                    timestamp = int(time.time())
+                    weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + str(timestamp) + "_" + str(bestTrainError) + ".data")
+                    
         w = np.append(bestModel.weights.values, bestModel.intercept)
         weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
         
         timestamp = int(time.time())
-        weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + tag + str(timestamp) + ".data")
+        weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + str(timestamp) + "_" + str(bestTrainError) + "_BEST" + ".data")
         
+                    
         # Instantiate metrics object
         metrics.append(BinaryClassificationMetrics(predictionAndLabels))
     
