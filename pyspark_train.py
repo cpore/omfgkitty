@@ -38,13 +38,13 @@ def train():
         bestModel = None
         
         for parms in params:
-            trainValidateRDD, testingRDD = parsedData.randomSplit([0.9, 0.1], seed=11)
+            trainValidateRDD, testingRDD = parsedData.randomSplit([0.9, 0.1])
             validationErrors = []
             bestParmSet = None
             for fold in range(10):
                 iterations += 1
                 
-                trainingRDD, validationRDD = trainValidateRDD.randomSplit([0.8, 0.2], seed=20)               
+                trainingRDD, validationRDD = trainValidateRDD.randomSplit([0.8, 0.2])               
                 
                 # Build the model
                 model = SVMWithSGD.train(trainingRDD, parms[0], parms[1], parms[2],parms[3],parms[4],parms[5],parms[6],parms[7],parms[8])
