@@ -5,6 +5,8 @@ from skimage import data, color, exposure, io
 import numpy as np
 from math import atan2, sin, cos, degrees
 from sklearn import preprocessing
+from operator import itemgetter
+
 
 def detect_cats(image, modelFile):
     model = np.loadtxt(modelFile, delimiter=',')
@@ -21,18 +23,19 @@ def detect_cats(image, modelFile):
     cellSize = (4,4)
     #Number of bins.
     nbins = 6
-    #
-    derivAperture = 1
+    #NOT USED
+    derivAperture = 0
     #Gaussian smoothing window parameter.
-    winSigma = 4.
-    #
+    #winSigma >= 0 ? winSigma : (blockSize.width + blockSize.height)/8.;
+    winSigma = -1
+    #NOT USED
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
     L2HysThreshold = 0.2
     #Do gamma correction preprocessing or not. Use true for default.
     gammaCorrection = 0
     #Maximum number of detection window increases.
-    nlevels = 64
+    nlevels = 1024
     
     hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
@@ -48,19 +51,36 @@ def detect_cats(image, modelFile):
     #Window stride. It must be a multiple of block stride.
     winStride = (4,4)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
-    padding = (8,8)
+    padding = (0,0)
     #Coefficient of the detection window increase.
-    scale = 1.01 
-    #don't know?
-    #finalThreshold = 0
+    scale = 1.5
+    #After detection some objects could be covered by many rectangles. 
+    #This coefficient regulates similarity threshold. 0 means don't perform grouping.
+    #Should be an integer if not using meanshift grouping. Use 2.0 for default
+    finalThreshold = 1.5
     #
-    #useMeanshiftGrouping
-    image = cv2.resize(image,None,fx=.3, fy=.3, interpolation = cv2.INTER_AREA)
-    found, w = hog.detectMultiScale(image, winStride=winStride, padding=padding, scale=scale)
+    useMeanshiftGrouping = False
+    image = cv2.resize(image,None,fx=.5, fy=.5, interpolation = cv2.INTER_AREA)
+    found, w = hog.detectMultiScale(image, winStride=winStride, padding=padding, scale=scale, finalThreshold=finalThreshold, useMeanshiftGrouping=useMeanshiftGrouping)
+    
+    if len(w) == 0:
+        cv2.imshow('rect_image',image)
+        cv2.waitKey(0)
+        return
+    i = np.argmax(w)
+    if w[i][0] < 1.68:
+        cv2.imshow('rect_image',image)
+        cv2.waitKey(0)
+        return
+    likely = found[i]
+    
+    boxes = convert_to_coords(found)
+    boxes = non_max_suppression_fast(boxes, 0.6)
+    boxes = pick(boxes, likely, 0.6)
     #print(h.shape, h.ravel())
     
-    print('found: ', found, 'w', w)
-    draw_found_max(image, found, w)
+    print('found: ', boxes, 'w', w)
+    draw_found(image, boxes)
 
 def draw_found_max(image, found, weights):
     if len(weights) == 0:
@@ -68,26 +88,56 @@ def draw_found_max(image, found, weights):
         cv2.waitKey(0)
         return
     i = np.argmax(weights)
-    if weights[i][0] < 3.5:
+    if weights[i][0] < 1:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
     pad = 0
     pts = found[i]
-    cv2.rectangle(image, (pts[0]-pad, pts[1]-pad), (pts[0]+pts[2]+pad, pts[1]+pts[3]+pad), (255,0,0), 2)
+    cv2.rectangle(image, (pts[0], pts[1]), (pts[2], pts[3]), (255,0,0), 2)
     cv2.imshow('rect_image',image)
     cv2.waitKey(0)
 
-def draw_found(image, found, weights):
-    for i in range(weights.shape[0]):
-        row = weights[i][0]
-        if row > 1.7:
-            pts = found[i]
-            cv2.rectangle(image, (pts[0], pts[1]), (pts[0]+pts[2], pts[1]+pts[3]), (255,0,0), 2)
+def draw_found(image, found):
+    for i in range(found.shape[0]):
+        pts = found[i]
+        cv2.rectangle(image, (pts[0], pts[1]), (pts[2], pts[3]), (255,0,0), 2)
+        cv2.imshow('rect_image',image)
+        cv2.waitKey(100)
     cv2.imshow('rect_image',image)
     cv2.waitKey(0)
-            
+    
+def convert_to_coords(boxes):
+    for box in boxes:
+        box[2] = box[0] + box[2]
+        box[3] = box[1] + box[3]
+    return boxes
 
+def pick(boxes, likely, overlapThresh):  
+    results = []       
+    for box in boxes:
+        #if the boxes overlap
+        overlap = area1(likely, box)
+        overlapRatio = overlap/area(likely)
+        if overlap > 0 and overlapRatio > overlapThresh:
+            results.append((overlapRatio, box))
+    
+    results = max(results,key=itemgetter(0))[1]
+    a = np.array([results])
+        
+    return a
+
+def area1(a, b):  # returns None if rectangles don't intersect
+    dx = min(a[2], b[2]) - max(a[0], b[0])
+    dy = min(a[3], b[3]) - max(a[1], b[1])
+    if (dx>=0) and (dy>=0):
+        return dx*dy
+    else:
+        return 0
+
+def area(a):
+    return (a[2] - a[0]) * (a[3]-a[1])
+        
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
     # if there are no boxes, return an empty list
@@ -158,18 +208,19 @@ def cv_hog(image, catFile, imgFunc):
     cellSize = (4,4)
     #Number of bins.
     nbins = 6
-    #
-    derivAperture = 1
+    #NOT USED
+    derivAperture = 0
     #Gaussian smoothing window parameter.
-    winSigma = 4.
-    #
+    #winSigma >= 0 ? winSigma : (blockSize.width + blockSize.height)/8.;
+    winSigma = 0
+    #NOT USED
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
-    L2HysThreshold = 0.3
+    L2HysThreshold = 0.2
     #Do gamma correction preprocessing or not. Use true for default.
     gammaCorrection = 0
     #Maximum number of detection window increases.
-    nlevels = 64
+    nlevels = 128
     
     hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
@@ -504,8 +555,8 @@ def get_time():
     return int(round(time.time() * 1000))
 
 def show_detected():
-    for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_sha_noval_nobias.model')
+    for filename in glob.glob('CAT_DATASET/*.jpg'):
+        detect_cats(cv2.imread(filename), 'models/svm_sha_nobias.model')
 
 show_detected()
 #cv_hog()

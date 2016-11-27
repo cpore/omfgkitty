@@ -1,0 +1,38 @@
+New Best Training Error = 0.12521739130434784----------------------------------------------
+New Best Params: (100, 0.01, 1e-05, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.08216880939072108----------------------------------------------
+New Best Params: (100, 0.01, 1e-05, 1.0, None, None, False, True, 0.001)
+New Best Training Error = 0.06965174129353234----------------------------------------------
+New Best Params: (100, 0.01, 0.0001, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.06479481641468683----------------------------------------------
+New Best Params: (100, 0.01, 0.001, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.06423034330011074----------------------------------------------
+New Best Params: (100, 0.01, 0.005, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.06215316315205328----------------------------------------------
+New Best Params: (100, 0.01, 0.5, 1.0, None, None, False, True, 0.001)
+New Best Training Error = 0.03863381858902576----------------------------------------------
+New Best Params: (100, 0.1, 1e-05, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.03520726859738785----------------------------------------------
+New Best Params: (100, 0.1, 1e-05, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.03256597417181359----------------------------------------------
+New Best Params: (100, 0.1, 0.0001, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.03114571746384872----------------------------------------------
+New Best Params: (100, 0.1, 0.005, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.030844155844155844----------------------------------------------
+New Best Params: (100, 0.1, 0.005, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.02809917355371901----------------------------------------------
+New Best Params: (100, 0.5, 1e-05, 1.0, None, 'l2', False, True, 0.001)
+New Best Training Error = 0.027056874654886803----------------------------------------------
+New Best Params: (100, 0.5, 1e-05, 1.0, None, 'l2', False, True, 0.0001)
+New Best Training Error = 0.026538678712591756----------------------------------------------
+New Best Params: (100, 0.5, 0.01, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.02531645569620253----------------------------------------------
+New Best Params: (100, 0.5, 0.05, 1.0, None, 'l2', False, True, 0.0001)
+New Best Training Error = 0.020716685330347144----------------------------------------------
+New Best Params: (100, 0.5, 0.05, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.019965772960638905----------------------------------------------
+New Best Params: (1000, 0.5, 0.01, 1.0, None, 'l2', False, True, 0.0001)
+New Best Training Error = 0.01956400223588597----------------------------------------------
+New Best Params: (1000, 0.5, 0.1, 1.0, None, None, False, True, 0.0001)
+
+

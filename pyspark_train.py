@@ -52,7 +52,7 @@ def train():
                 predsAndLabels = validationRDD.map(lambda p: (model.predict(p.features), p.label))
                 validationError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(validationRDD.count())
                 
-                print('Finished Running iteration:', str(iterations), 'of 720', 'Running fold', str(fold), '\nwith params:', parms, '\nwith error:', validationError)
+                print('Finished Running iteration:', str(iterations), 'of 7200', 'Running fold', str(fold), '\nwith params:', parms, '\nwith error:', validationError)
                 validationErrors.append(validationError)      
                 
             # Calculate the mean of these errors.
