@@ -92,7 +92,8 @@ if __name__ == '__main__':
     conf = SparkConf().setAppName('SVM_TRAINING')
     sc = SparkContext(conf=conf)
 
-    train()
+    train_sha()
+    train_tex()
     sc.stop()
     
 #$SPARK_HOME/bin/spark-submit --deploy-mode cluster --master yarn --supervise pyspark_train.py
