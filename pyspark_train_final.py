@@ -45,7 +45,7 @@ def train_sha():
     predsAndLabels = parsedData.map(lambda p: (finalModel.predict(p.features), p.label))
     trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
     # Instantiate metrics object
-    metric = BinaryClassificationMetrics(predictionAndLabels)
+    metric = BinaryClassificationMetrics(predsAndLabels)
     # Area under precision-recall curve
     print("Area under PRC = %s" % metric.areaUnderPR)
     # Area under ROC curve
@@ -81,7 +81,7 @@ def train_tex():
     predsAndLabels = parsedData.map(lambda p: (finalModel.predict(p.features), p.label))
     trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
     # Instantiate metrics object
-    metric = BinaryClassificationMetrics(predictionAndLabels)
+    metric = BinaryClassificationMetrics(predsAndLabels)
     # Area under precision-recall curve
     print("Area under PRC = %s" % metric.areaUnderPR)
     # Area under ROC curve
