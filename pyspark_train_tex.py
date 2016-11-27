@@ -24,7 +24,7 @@ def train():
         
     tag = "_tex"
     
-    data = sc.textFile(dataFiles[i])
+    data = sc.textFile(dataFileTex)
     parsedData = data.map(parsePoint)
 
     params = make_params()
