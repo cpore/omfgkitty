@@ -52,7 +52,7 @@ def train():
                 predsAndLabels = validationRDD.map(lambda p: (model.predict(p.features), p.label))
                 validationError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(validationRDD.count())
                 
-                print('Finished Running iteration:', str(iterations), 'of 7200', 'Running fold', str(fold), '\nwith params:', parms, '\nwith error:', validationError)
+                print('Finished Running iteration:', str(iterations), 'of', len(params) * 10 * 2, 'Running fold', str(fold), '\nwith params:', parms, '\nwith error:', validationError)
                 validationErrors.append(validationError)      
                 
             # Calculate the mean of these errors.
@@ -83,7 +83,7 @@ def train():
                     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + "_" + str(timestamp) + "_" + str(bestTestError) + ".model")
           
         #Finally, train a new model with the best params on the entire data set
-        finalModel = SVMWithSGD.train(parsedData,bestParmSet[0], bestParmSet[1], bestParmSet[2],bestParmSet[3],bestParmSet[4],bestParmSet[5],bestParmSet[6],bestParmSet[7],bestParmSet[8])          
+        finalModel = SVMWithSGD.train(parsedData,bestParamSet[0], bestParamSet[1], bestParamSet[2],bestParamSet[3],bestParamSet[4],bestParamSet[5],bestParamSet[6],bestParamSet[7],bestParamSet[8])          
         w = np.append(finalModel.weights.values, finalModel.intercept)
         weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
         

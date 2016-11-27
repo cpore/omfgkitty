@@ -51,7 +51,7 @@ def detect_cats(image, modelFile):
     #Window stride. It must be a multiple of block stride.
     winStride = (4,4)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
-    padding = (0,0)
+    padding = (2,2)
     #Coefficient of the detection window increase.
     scale = 1.5
     #After detection some objects could be covered by many rectangles. 
@@ -62,24 +62,24 @@ def detect_cats(image, modelFile):
     useMeanshiftGrouping = False
     image = cv2.resize(image,None,fx=.5, fy=.5, interpolation = cv2.INTER_AREA)
     found, w = hog.detectMultiScale(image, winStride=winStride, padding=padding, scale=scale, finalThreshold=finalThreshold, useMeanshiftGrouping=useMeanshiftGrouping)
-    
+    print('found: ', found, 'w', w)
     if len(w) == 0:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
     i = np.argmax(w)
-    if w[i][0] < 1.68:
+    if w[i][0] < 0:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
     likely = found[i]
     
     boxes = convert_to_coords(found)
-    boxes = non_max_suppression_fast(boxes, 0.6)
+    #boxes = non_max_suppression_fast(boxes, 0.6)
     boxes = pick(boxes, likely, 0.6)
     #print(h.shape, h.ravel())
     
-    print('found: ', boxes, 'w', w)
+    print('boxes: ', boxes, 'w', w)
     draw_found(image, boxes)
 
 def draw_found_max(image, found, weights):
@@ -556,7 +556,7 @@ def get_time():
 
 def show_detected():
     for filename in glob.glob('CAT_DATASET/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_sha_nobias.model')
+        detect_cats(cv2.imread(filename), 'models/svm_tex_1.model')
 
 show_detected()
 #cv_hog()
