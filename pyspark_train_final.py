@@ -42,7 +42,7 @@ def train_sha():
     timestamp = int(time.time())
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_sha" + str(timestamp) + "_FINAL" + ".model")
                 
-    predsAndLabels = parsedData.map(lambda p: (model.predict(p.features), p.label))
+    predsAndLabels = parsedData.map(lambda p: (finalModel.predict(p.features), p.label))
     trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
     # Instantiate metrics object
     metric = BinaryClassificationMetrics(predictionAndLabels)
@@ -78,7 +78,7 @@ def train_tex():
     timestamp = int(time.time())
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_tex" + str(timestamp) + "_FINAL" + ".model")
                 
-    predsAndLabels = parsedData.map(lambda p: (model.predict(p.features), p.label))
+    predsAndLabels = parsedData.map(lambda p: (finalModel.predict(p.features), p.label))
     trainError = predsAndLabels.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
     # Instantiate metrics object
     metric = BinaryClassificationMetrics(predictionAndLabels)
