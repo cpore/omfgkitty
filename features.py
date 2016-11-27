@@ -31,9 +31,9 @@ def detect_cats(image, modelFile):
     #NOT USED
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
-    L2HysThreshold = 0.2
+    L2HysThreshold = 0.3
     #Do gamma correction preprocessing or not. Use true for default.
-    gammaCorrection = 0
+    gammaCorrection = 1
     #Maximum number of detection window increases.
     nlevels = 1024
     
@@ -68,7 +68,7 @@ def detect_cats(image, modelFile):
         cv2.waitKey(0)
         return
     i = np.argmax(w)
-    if w[i][0] < 0:
+    if w[i][0] < 1.9:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
@@ -555,8 +555,8 @@ def get_time():
     return int(round(time.time() * 1000))
 
 def show_detected():
-    for filename in glob.glob('CAT_DATASET/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_tex_1.model')
+    for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
+        detect_cats(cv2.imread(filename), 'models/svm_sha.model')
 
 show_detected()
 #cv_hog()
