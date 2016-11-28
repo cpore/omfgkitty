@@ -49,15 +49,15 @@ def detect_cats(image, modelFile):
     #But if the free coefficient is omitted (which is allowed), you can specify it manually here.
     #hitThreshold = 1.5
     #Window stride. It must be a multiple of block stride.
-    winStride = (4,4)
+    winStride = (6,6)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
-    padding = (4,4)
+    padding = (2,2)
     #Coefficient of the detection window increase.
     scale = 1.5
     #After detection some objects could be covered by many rectangles. 
     #This coefficient regulates similarity threshold. 0 means don't perform grouping.
     #Should be an integer if not using meanshift grouping. Use 2.0 for default
-    finalThreshold = 1.0
+    finalThreshold = 1.5
     #
     useMeanshiftGrouping = False
     
@@ -564,7 +564,7 @@ def get_time():
 
 def show_detected():
     for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_tex_spark.model')
+        detect_cats(cv2.imread(filename), 'models/svm_tex_spark1.model')
 
 show_detected()
 #cv_hog()

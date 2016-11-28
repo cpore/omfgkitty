@@ -62,11 +62,11 @@ def train_tex():
     parsedData = data.map(parsePoint)
 
     iterations = 1000
-    step = 0.01
-    regParam = 0.1
+    step = 0.1
+    regParam = 0.00001
     miniBatchFraction = 1.0
     initialWeights = None
-    regType = None
+    regType = 'l2'
     #True never does better than random
     intercept = False
     validateData = True
