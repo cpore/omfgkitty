@@ -63,17 +63,17 @@ def train_tex():
 
     iterations = 1000
     step = 0.01
-    regParam = 0.00001
+    regParam = 0.1
     miniBatchFraction = 1.0
     initialWeights = None
-    regType = 'l2'
+    regType = None
     #True never does better than random
     intercept = False
     validateData = True
     convergenceTol = 0.0001
     
     #Finally, train a new model with the best params on the entire data set
-    finalModel = SVMWithSGD.train(parsedData,iterations,step,regParam, miniBatchFraction,initialWeights,regType,intercept,validateData,convergenceTol)          
+    finalModel = SVMWithSGD.train(parsedData,iterations,step,regParam,miniBatchFraction,initialWeights,regType,intercept,validateData,convergenceTol)          
     w = np.append(finalModel.weights.values, finalModel.intercept)
     weightsRDD = sc.parallelize(("w", ','.join(['%.16f' % num for num in w])))
     
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     conf = SparkConf().setAppName('SVM_TRAINING')
     sc = SparkContext(conf=conf)
 
-    train_sha()
+    #train_sha()
     train_tex()
     sc.stop()
     

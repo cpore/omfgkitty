@@ -19,7 +19,6 @@ def train():
     
     dataFileTex = "hdfs://columbus-oh.cs.colostate.edu:30148/data/hog_tex.data"
     iterations = 0
-    metrics = []
     finalParams = []
         
     tag = "_tex"
@@ -88,15 +87,15 @@ def train():
     weightsRDD.saveAsTextFile("hdfs://columbus-oh.cs.colostate.edu:30148/model/weights_" + str(iterations) + "_" + tag + "_" + str(timestamp) + "_" + str(bestTestError) + "_FINAL" + ".model")
                 
     # Instantiate metrics object
-    metrics.append(BinaryClassificationMetrics(predictionAndLabels))
+    #metrics.append(BinaryClassificationMetrics(predictionAndLabels))
     
-    for i in range(len(metrics)):
-        tag = "_sha" if i==0 else "_tex"
-        # Area under precision-recall curve
-        print(tag, "Area under PR = %s" % metric.areaUnderPR)
-        # Area under ROC curve
-        print(tag, "Area under ROC = %s" % metric.areaUnderROC)
-        print(tag, 'best params:', finalParams[i])
+#     for i in range(len(metrics)):
+#         tag = "_sha" if i==0 else "_tex"
+#         # Area under precision-recall curve
+#         print(tag, "Area under PR = %s" % metric.areaUnderPR)
+#         # Area under ROC curve
+#         print(tag, "Area under ROC = %s" % metric.areaUnderROC)
+#         print(tag, 'best params:', finalParams[i])
             
 def make_params():
     iterations_params = [1000]

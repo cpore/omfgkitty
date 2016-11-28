@@ -51,35 +51,43 @@ def detect_cats(image, modelFile):
     #Window stride. It must be a multiple of block stride.
     winStride = (4,4)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
-    padding = (2,2)
+    padding = (4,4)
     #Coefficient of the detection window increase.
     scale = 1.5
     #After detection some objects could be covered by many rectangles. 
     #This coefficient regulates similarity threshold. 0 means don't perform grouping.
     #Should be an integer if not using meanshift grouping. Use 2.0 for default
-    finalThreshold = 1.5
+    finalThreshold = 1.0
     #
     useMeanshiftGrouping = False
-    image = cv2.resize(image,None,fx=.5, fy=.5, interpolation = cv2.INTER_AREA)
+    
+    largest = image.shape[0] if image.shape[0] > image.shape[1] else image.shape[1]
+    
+    imgscale = 336/largest #if image.shape[0] > 320 else 1 
+    
+    image = cv2.resize(image,None,fx=imgscale, fy=imgscale, interpolation = cv2.INTER_AREA)
+    
+    print(image.shape)
     found, w = hog.detectMultiScale(image, winStride=winStride, padding=padding, scale=scale, finalThreshold=finalThreshold, useMeanshiftGrouping=useMeanshiftGrouping)
     print('found: ', found, 'w', w)
+    boxes = convert_to_coords(found)
     if len(w) == 0:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
     i = np.argmax(w)
-    if w[i][0] < 1.9:
+    if w[i][0] < .7:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
-    likely = found[i]
+    likely = boxes[i]
     
-    boxes = convert_to_coords(found)
+    
     #boxes = non_max_suppression_fast(boxes, 0.6)
     boxes = pick(boxes, likely, 0.6)
     #print(h.shape, h.ravel())
     
-    print('boxes: ', boxes, 'w', w)
+    print('boxes: ', boxes, 'w', w[i])
     draw_found(image, boxes)
 
 def draw_found_max(image, found, weights):
@@ -556,7 +564,7 @@ def get_time():
 
 def show_detected():
     for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_sha.model')
+        detect_cats(cv2.imread(filename), 'models/svm_tex_spark.model')
 
 show_detected()
 #cv_hog()
