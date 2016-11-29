@@ -25,7 +25,7 @@ def train_sha():
 
     iterations = 1000
     step = 0.5
-    regParam = 0.1
+    regParam = 0.0001
     miniBatchFraction = 1.0
     initialWeights = None
     regType = None
@@ -63,7 +63,7 @@ def train_tex():
 
     iterations = 1000
     step = 0.1
-    regParam = 0.00001
+    regParam = 0.001
     miniBatchFraction = 1.0
     initialWeights = None
     regType = 'l2'

@@ -44,7 +44,6 @@ False Neg: 16/100
 Cutoff weight: 2.3
 scale: 1.5
 
-
 -------------------texture data--------------------------------------------------------------
 New Best Training Error = 0.03590040532715692----------------------------------------------
 New Best Params: (1000, 0.01, 1e-05, 1.0, None, 'l2', False, True, 0.0001)
@@ -52,12 +51,26 @@ New Best Training Error = 0.035331905781584586----------------------------------
 New Best Params: (1000, 0.01, 0.1, 1.0, None, 'l2', False, True, 0.0001)
 New Best Training Error = 0.03459821428571429----------------------------------------------
 New Best Params: (1000, 0.01, 0.5, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.015829694323144104----------------------------------------------
+New Best Params: (1000, 0.1, 1e-05, 1.0, None, 'l2', False, True, 0.0001)
+New Best Training Error = 0.012540894220283533----------------------------------------------
+New Best Params: (1000, 0.1, 0.001, 1.0, None, 'l2', False, True, 0.0001)
+New Best Training Error = 0.008953553441522105----------------------------------------------
+New Best Params: (1000, 0.5, 1e-05, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.008375209380234505----------------------------------------------
+New Best Params: (1000, 0.5, 0.0001, 1.0, None, None, False, True, 0.0001)
+New Best Training Error = 0.006970509383378016----------------------------------------------
+New Best Params: (1000, 0.5, 1e-05, 1.0, None, 'l2', False, True, 0.0001)
+
+
+Final Training Error = 0.016----------------------------------------------
+
+True Neg: 20/100
+False Pos: 38/100
+True Pos: 29/100
+False Neg: 13/100
+Cutoff weight: 0.85
 
 
 
-Final Training Error = 0.03927777777777778----------------------------------------------
-
-True Neg: 24/100
-False Pos: 36/100
-True Pos: 19/100
-False Neg: 21/100
+Running time: 91hrs, 54mins, 13sec 

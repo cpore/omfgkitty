@@ -76,7 +76,7 @@ def detect_cats(image, modelFile):
         cv2.waitKey(0)
         return
     i = np.argmax(w)
-    if w[i][0] < .7:
+    if w[i][0] < .85:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
@@ -564,7 +564,7 @@ def get_time():
 
 def show_detected():
     for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_tex_spark1.model')
+        detect_cats(cv2.imread(filename), 'models/svm_tex_spark.model')
 
 show_detected()
 #cv_hog()
