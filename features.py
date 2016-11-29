@@ -27,7 +27,7 @@ def detect_cats(image, modelFile):
     derivAperture = 0
     #Gaussian smoothing window parameter.
     #winSigma >= 0 ? winSigma : (blockSize.width + blockSize.height)/8.;
-    winSigma = -1
+    winSigma = 4
     #NOT USED
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
@@ -49,7 +49,7 @@ def detect_cats(image, modelFile):
     #But if the free coefficient is omitted (which is allowed), you can specify it manually here.
     #hitThreshold = 1.5
     #Window stride. It must be a multiple of block stride.
-    winStride = (6,6)
+    winStride = (4,4)
     #Mock parameter to keep the CPU interface compatibility. It must be (0,0).
     padding = (2,2)
     #Coefficient of the detection window increase.
@@ -63,7 +63,7 @@ def detect_cats(image, modelFile):
     
     largest = image.shape[0] if image.shape[0] > image.shape[1] else image.shape[1]
     
-    imgscale = 336/largest #if image.shape[0] > 320 else 1 
+    imgscale = 288/largest #if image.shape[0] > 320 else 1 
     
     image = cv2.resize(image,None,fx=imgscale, fy=imgscale, interpolation = cv2.INTER_AREA)
     
@@ -76,7 +76,7 @@ def detect_cats(image, modelFile):
         cv2.waitKey(0)
         return
     i = np.argmax(w)
-    if w[i][0] < .85:
+    if w[i][0] < 0:
         cv2.imshow('rect_image',image)
         cv2.waitKey(0)
         return
@@ -88,7 +88,7 @@ def detect_cats(image, modelFile):
     #print(h.shape, h.ravel())
     
     print('boxes: ', boxes, 'w', w[i])
-    draw_found(image, boxes)
+    draw_found(image, np.array([likely]))
 
 def draw_found_max(image, found, weights):
     if len(weights) == 0:
@@ -563,8 +563,8 @@ def get_time():
     return int(round(time.time() * 1000))
 
 def show_detected():
-    for filename in glob.glob('VOC_NEGATIVES/*.jpg'):
-        detect_cats(cv2.imread(filename), 'models/svm_tex_spark.model')
+    for filename in glob.glob('VOC_POSITIVES/*.jpg'):
+        detect_cats(cv2.imread(filename), 'models/svm_sha_spark.model')
 
 show_detected()
 #cv_hog()

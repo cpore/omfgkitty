@@ -63,13 +63,13 @@ New Best Training Error = 0.006970509383378016----------------------------------
 New Best Params: (1000, 0.5, 1e-05, 1.0, None, 'l2', False, True, 0.0001)
 
 
-Final Training Error = 0.016----------------------------------------------
+Training Error = 0.016----------------------------------------------
 
-True Neg: 20/100
-False Pos: 38/100
-True Pos: 29/100
-False Neg: 13/100
-Cutoff weight: 0.85
+True Neg: 35/100
+False Pos: 16/100
+True Pos: 26/100
+False Neg: 23/100
+Cutoff weight: 1.2
 
 
 
