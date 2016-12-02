@@ -83,12 +83,12 @@ def detect_cats(image, modelFile):
     likely = boxes[i]
     
     
-    #boxes = non_max_suppression_fast(boxes, 0.6)
+    boxes = non_max_suppression_fast(boxes, 0.6)
     boxes = pick(boxes, likely, 0.6)
     #print(h.shape, h.ravel())
     
     print('boxes: ', boxes, 'w', w[i])
-    draw_found(image, np.array([likely]))
+    draw_found(image, boxes)
 
 def draw_found_max(image, found, weights):
     if len(weights) == 0:
@@ -113,6 +113,7 @@ def draw_found(image, found):
         cv2.imshow('rect_image',image)
         cv2.waitKey(100)
     cv2.imshow('rect_image',image)
+    #cv2.imwrite('detected1.png',image)
     cv2.waitKey(0)
     
 def convert_to_coords(boxes):
@@ -220,7 +221,7 @@ def cv_hog(image, catFile, imgFunc):
     derivAperture = 0
     #Gaussian smoothing window parameter.
     #winSigma >= 0 ? winSigma : (blockSize.width + blockSize.height)/8.;
-    winSigma = 0
+    winSigma = -1
     #NOT USED
     histogramNormType = 0
     #L2-Hys normalization method shrinkage.
@@ -244,7 +245,8 @@ def cv_hog(image, catFile, imgFunc):
     
 def ski_hog(image, catFile, imgFunc):
     #color.rgb2gray(io.imread(imgFile))
-    image = imgFunc(image, catFile)#color.rgb2gray(io.imread('CAT_DATASET/00000001_000.jpg'))
+    if imgFunc is not None:
+        image = imgFunc(image, catFile)#color.rgb2gray(io.imread('CAT_DATASET/00000001_000.jpg'))
     
     orientations=6
     pixels_per_cell=(4,4)
@@ -252,10 +254,16 @@ def ski_hog(image, catFile, imgFunc):
     visualise=True
     
     fd, hog_image = hog(image, orientations, pixels_per_cell, cells_per_block, visualise)
+    show_hog_image(image, hog_image)
+    return fd
     
     #print(fd.shape, fd)
     
+    
+def show_hog_image(image, hog_image):
+    
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
+    
     
     ax1.axis('off')
     ax1.imshow(image, cmap=plt.cm.gray, interpolation='none')
@@ -263,16 +271,16 @@ def ski_hog(image, catFile, imgFunc):
     ax1.set_adjustable('box-forced')
     
     #print(hog_image.shape, hog_image)
-    
     # Rescale histogram for better display
-    hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 0.02))
+    hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(.01, .5))
+    
     
     ax2.axis('off')
     ax2.imshow(hog_image_rescaled, cmap=plt.cm.gray, interpolation='none')
     ax2.set_title('Histogram of Oriented Gradients')
     ax1.set_adjustable('box-forced')
     plt.show()
-
+    
 def draw_pts(image, catFile):
     pts = np.loadtxt(catFile, dtype='int_', delimiter=' ', usecols=range(1,19))
     
@@ -297,6 +305,7 @@ def draw_pts(image, catFile):
     cv2.circle(image, ear_right_right, 10, (0,255,0), 3)
     
     cv2.imshow("image", image)
+    cv2.imwrite('pts.png',image)
     cv2.waitKey(0)
     print(pts)
     
@@ -313,11 +322,14 @@ def cv_shape():
     
 def get_kitty_face_texture(image, catFile):
     pts = np.loadtxt(catFile, dtype='int_', delimiter=' ', usecols=range(1,19))
+    (h, w) = image.shape[:2]
+    border = h-w if h >= w else w-h
+    image = cv2.copyMakeBorder(image,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
     
-    eye_left = (pts[0], pts[1])
-    eye_right = (pts[2], pts[3])
+    eye_left = (pts[0]+int(border), pts[1]+int(border))
+    eye_right = (pts[2]+int(border), pts[3]+int(border))
     
-    nose = (pts[4], pts[5])
+    nose = (pts[4]+int(border), pts[5]+int(border))
     
     #translate about the nose
     (h, w) = image.shape[:2]
@@ -340,9 +352,10 @@ def get_kitty_face_texture(image, catFile):
     cv2.circle(translated, eye_left, 5, (0,255,0), 2)
     cv2.circle(translated, eye_right, 5, (0,255,0), 2)
     cv2.circle(translated, nose, 5, (0,255,0), 2)
+    '''
     cv2.imshow('tanslated', translated)
     cv2.waitKey(0)
-    '''
+    
     #get the angle (in radians) by which to rotate_pt
     angle = atan2(eye_right[1] - eye_left[1], eye_right[0] - eye_left[0])
     
@@ -378,12 +391,6 @@ def get_kitty_face_texture(image, catFile):
     eye_right = scale_pt(eye_right[0], eye_right[1], scale)
     nose = scale_pt(nose[0], nose[1], scale)
     
-    #add border to ensure faces on edges of photos don't cause error due to roi being out of image boundaries
-    border = 48
-    scaled = cv2.copyMakeBorder(scaled,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
-    eye_left = (eye_left[0]+border, eye_left[1]+border)
-    eye_right = (eye_right[0]+border, eye_right[1]+border)
-    nose = (nose[0]+border, nose[1]+border)
     '''
     cv2.circle(scaled, eye_left, 5, (0,255,0), 2)
     cv2.circle(scaled, eye_right, 5, (0,255,0), 2)
@@ -391,20 +398,23 @@ def get_kitty_face_texture(image, catFile):
     '''
     eyes_center = ((int(round(eye_right[0] + eye_left[0])/2)), eye_left[1]+9)
     
-    delta = int(border/2)
+    delta = int(48/2)
     roi = scaled[eyes_center[1]-delta: eyes_center[1]+delta, eyes_center[0]-delta: eyes_center[0]+delta]
     
     #print(roi.shape)
-    #cv2.imshow("ROI", roi)
-    #cv2.waitKey(0)
+    cv2.imshow("ROI", roi)
+    cv2.waitKey(0)
     return roi
 
 def get_kitty_face_shape(image, catFile):
     pts = np.loadtxt(catFile, dtype='int_', delimiter=' ', usecols=range(1,19))
+    (h, w) = image.shape[:2]
+    border = h-w if h >= w else w-h
+    image = cv2.copyMakeBorder(image,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
     
-    nose = (pts[4], pts[5])
-    ear_left_tip = (pts[8], pts[9])
-    ear_right_tip = (pts[14], pts[15])
+    nose = (pts[4]+int(border), pts[5]+int(border))
+    ear_left_tip = (pts[8]+int(border), pts[9]+int(border))
+    ear_right_tip = (pts[14]+int(border), pts[15]+int(border))
     
     #translate about the nose
     (h, w) = image.shape[:2]
@@ -423,13 +433,13 @@ def get_kitty_face_shape(image, catFile):
     ear_right_tip = (ear_right_tip[0]+tx, ear_right_tip[1]+ty)
     
     nose = (nose[0]+tx, nose[1]+ty)
-    '''
-    cv2.circle(translated, ear_left_tip, 5, (0,255,0), 2)
-    cv2.circle(translated, ear_right_tip, 5, (0,255,0), 2)
-    cv2.circle(translated, nose, 5, (0,255,0), 2)
-    cv2.imshow('tanslated', translated)
-    cv2.waitKey(0)
-    '''
+    
+#     cv2.circle(translated, ear_left_tip, 5, (0,255,0), 2)
+#     cv2.circle(translated, ear_right_tip, 5, (0,255,0), 2)
+#     cv2.circle(translated, nose, 5, (0,255,0), 2)
+#     cv2.imshow('tanslated', translated)
+#     cv2.waitKey(0)
+    
     #get the angle (in radians) by which to rotate_pt
     angle = atan2(ear_right_tip[1] - ear_left_tip[1], ear_right_tip[0] - ear_left_tip[0])
     
@@ -437,17 +447,16 @@ def get_kitty_face_shape(image, catFile):
     ear_left_tip = rotate_pt(ear_left_tip[0], ear_left_tip[1] ,img_center[0], img_center[1], angle)
     nose = rotate_pt(nose[0], nose[1] ,img_center[0], img_center[1], angle)
     
-    #cv2.circle(image, ear_left_left, 10, (0,255,0), 3)
-    #cv2.circle(image, ear_left_tip, 10, (0,255,0), 3)
-    #cv2.circle(image, ear_left_right, 10, (0,255,0), 3)
-    #cv2.circle(image, ear_right_left, 10, (0,255,0), 3)
-    #cv2.circle(image, ear_right_tip, 10, (0,255,0), 3)
-    #cv2.circle(image, ear_right_right, 10, (0,255,0), 3)
+    
     
     # rotate_pt the image by angle degrees
     angle = degrees(angle)
     M = cv2.getRotationMatrix2D(img_center, angle, 1.0)
     rotated = cv2.warpAffine(translated, M, (w, h))
+    
+#     cv2.circle(rotated, ear_left_tip, 10, (0,255,0), 3)
+#     cv2.circle(rotated, ear_right_tip, 10, (0,255,0), 3)
+#     cv2.circle(rotated, nose, 10, (0,255,0), 3)
     
     
     #scale the image to 36 pixels between ear tips
@@ -466,27 +475,22 @@ def get_kitty_face_shape(image, catFile):
     ear_right_tip = scale_pt(ear_right_tip[0], ear_right_tip[1], scale)
     nose = scale_pt(nose[0], nose[1], scale)
     
-    #add border to ensure faces on edges of photos don't cause error due to roi being out of image boundaries
-    border = 48
-    scaled = cv2.copyMakeBorder(scaled,border,border,border,border,cv2.BORDER_CONSTANT,value=(0,0,0))
-    ear_left_tip = (ear_left_tip[0]+border, ear_left_tip[1]+border)
-    ear_right_tip = (ear_right_tip[0]+border, ear_right_tip[1]+border)
-    nose = (nose[0]+border, nose[1]+border)
-    
     #cv2.imshow("scaled", scaled)
     #cv2.waitKey(0)
-    '''
-    cv2.circle(scaled, ear_left_tip, 5, (0,255,0), 2)
-    cv2.circle(scaled, ear_right_tip, 5, (0,255,0), 2)
-    cv2.circle(scaled, nose, 5, (0,255,0), 2)
-    '''
+    
+#     cv2.circle(scaled, ear_left_tip, 5, (0,255,0), 2)
+#     cv2.circle(scaled, ear_right_tip, 5, (0,255,0), 2)
+#     cv2.circle(scaled, nose, 5, (0,255,0), 2)
+    
+    
     ears_center = ((int(round(ear_right_tip[0] + ear_left_tip[0])/2)), ear_left_tip[1]+22)
     
-    delta = int(border/2)
+    delta = int(48/2)
     roi = scaled[ears_center[1]-delta: ears_center[1]+delta, ears_center[0]-delta: ears_center[0]+delta]
     
     #print(roi.shape)
     #cv2.imshow("ROI", roi)
+    #cv2.imwrite('roi.png',roi)
     #cv2.waitKey(0)
     return roi
     
@@ -563,16 +567,17 @@ def get_time():
     return int(round(time.time() * 1000))
 
 def show_detected():
-    for filename in glob.glob('VOC_POSITIVES/*.jpg'):
+    for filename in glob.glob('CAT_DATASET/*.jpg'):
         detect_cats(cv2.imread(filename), 'models/svm_sha_spark.model')
 
-show_detected()
+#show_detected()
 #cv_hog()
-#ski_hog()
+#ski_hog(color.rgb2gray(io.imread('CAT_DATASET/00000024_009.jpg')), 'CAT_DATASET/00000024_009.jpg.cat', get_kitty_face_texture)
 # 
-# imgFile3 = 'CAT_DATASET/00000298_014.jpg'
-# catFile3 = imgFile3 +'.cat'
-#detect_cats(cv2.imread('CAT_DATASET/00000009_016.jpg'), 'models/svm2.model')
+imgFile3 = 'CAT_DATASET/00000298_014.jpg'
+catFile3 = imgFile3 +'.cat'
+#detect_cats(cv2.imread('CAT_DATASET/00000058_016.jpg'), 'models/svm_sha_spark.model')
+get_kitty_face_texture(cv2.imread(imgFile3), catFile3)
 # imgFile2 = 'CAT_DATASET/00000156_002.jpg'
 # catFile2 = imgFile2 +'.cat'
 #imgFile = 'CAT_DATASET/00000032_002.jpg'
